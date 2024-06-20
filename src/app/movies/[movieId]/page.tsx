@@ -1,11 +1,13 @@
 import Image from 'next/image';
 import { getMovieById } from 'src/app/lib/movies-service';
+import { WriteReviewForm } from './WriteReviewForm';
 
 export default async function MovieReviews({
-  params: { movieId },
+  params,
 }: {
-  params: { movieId: number };
+  params: { movieId: string };
 }) {
+  const movieId = parseInt(params.movieId, 10);
   const movie = await getMovieById(movieId);
 
   return (
@@ -36,8 +38,9 @@ export default async function MovieReviews({
         </p>
       </div>
       <div className='grid-in-[reviews]'>
-        <h2 className='text-2xl mb-2 font-bold'>Reviews</h2>
-        <p>This movie has no reviews yet.</p>
+        <h2 className='text-2xl font-bold'>Reviews</h2>
+        <p className='mt-2 mb-4'>What are your thoughts on this movie?</p>
+        <WriteReviewForm movieId={movieId} />
       </div>
     </div>
   );
