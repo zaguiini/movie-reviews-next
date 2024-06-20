@@ -30,7 +30,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className='flex-1 space-y-4 p-4 pt-6 md:p-8'>{children}</div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -12,6 +12,7 @@ const authenticatedRequest = (url: string) =>
 export interface Movie {
   id: number;
   title: string;
+  overview: string;
   backdrop_path: string | null;
   poster_path: string | null;
   release_date: string | null;
@@ -37,3 +38,6 @@ export const queryMovies = ({
 
   return authenticatedRequest(url.toString());
 };
+
+export const getMovieById = (id: number): Promise<Movie> =>
+  authenticatedRequest(`${API_BASE_URL}/movie/${id}`);

@@ -39,7 +39,10 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@savvywombat/tailwindcss-grid-areas'),
+  ],
 } satisfies Config;
 
 export default config;
