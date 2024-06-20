@@ -1,8 +1,10 @@
 import { getUser } from './lib/auth';
 import { MovieSearch } from 'src/components/MovieSearch';
+import { getPopularMovies } from './lib/movies-service';
 
 export async function Dashboard() {
   const user = await getUser();
+  const { results } = await getPopularMovies();
 
   return (
     <div className='flex flex-col gap-10'>
@@ -19,7 +21,7 @@ export async function Dashboard() {
           people&apos;s reviews.
         </p>
         <div className='mt-6'>
-          <MovieSearch />
+          <MovieSearch movies={results} />
         </div>
       </div>
     </div>
