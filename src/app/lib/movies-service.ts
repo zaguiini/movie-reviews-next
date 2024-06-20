@@ -12,9 +12,9 @@ const authenticatedRequest = (url: string) =>
 export interface Movie {
   id: number;
   title: string;
-  backdrop_path: string;
-  poster_path: string;
-  release_date: string;
+  backdrop_path: string | null;
+  poster_path: string | null;
+  release_date: string | null;
 }
 
 export const getPopularMovies = (): Promise<{
@@ -26,7 +26,12 @@ interface QueryMoviesParams {
   query: string;
 }
 
-export const queryMovies = ({ query }: QueryMoviesParams) => {
+export const queryMovies = ({
+  query,
+}: QueryMoviesParams): Promise<{
+  page: number;
+  results: Movie[];
+}> => {
   const url = new URL(`${API_BASE_URL}/search/movie`);
   url.searchParams.append('query', query);
 
