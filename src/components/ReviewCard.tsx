@@ -20,7 +20,7 @@ export const ReviewCard = ({
 }) => {
   if (movie) {
     return (
-      <Link href={`/movies/${movie.id}`}>
+      <Link href={`/movies/${movie.id}/${review.id}`}>
         <Card>
           <div className='flex'>
             {movie.poster_path && (
@@ -52,7 +52,9 @@ export const ReviewCard = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-lg'>{review.title}</CardTitle>
+        <Link href={`/movies/${review.movieId}/reviews/${review.id}`}>
+          <CardTitle className='text-lg'>{review.title}</CardTitle>
+        </Link>
         <CardDescription>
           {review.owner.split('@')[0]} on{' '}
           {new Intl.DateTimeFormat('en').format(review.createdAt)}

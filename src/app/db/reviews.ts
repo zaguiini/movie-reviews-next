@@ -33,3 +33,11 @@ export const getReviewsByOwner = (owner: string) => {
     .from(schema.ReviewsTable)
     .where(eq(schema.ReviewsTable.owner, owner));
 };
+
+export const getReviewById = (reviewId: number) => {
+  return db
+    .select()
+    .from(schema.ReviewsTable)
+    .where(eq(schema.ReviewsTable.id, reviewId))
+    .limit(1);
+};
