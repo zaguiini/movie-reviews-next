@@ -1,10 +1,5 @@
 import Link from 'next/link';
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../../../../../components/ui/Card';
+import { CardDescription, CardTitle } from 'src/components/ui/Card';
 import { getReviewById } from 'src/app/db/reviews';
 
 export default async function ReviewDetail({
