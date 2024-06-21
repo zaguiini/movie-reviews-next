@@ -20,7 +20,7 @@ export const ReviewCard = ({
 }) => {
   if (movie) {
     return (
-      <Link href={`/movies/${movie.id}/${review.id}`}>
+      <Link href={`/movies/${movie.id}/reviews/${review.id}`}>
         <Card>
           <div className='flex'>
             {movie.poster_path && (
