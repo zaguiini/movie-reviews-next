@@ -4,6 +4,7 @@ import { WriteReviewForm } from './WriteReviewForm';
 import { Review, getReviews } from 'src/app/db/reviews';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { ReviewCard } from 'src/components/ReviewCard';
+import { LoginURL } from 'src/components/LoginURL';
 
 interface ViewerAndReviewsProps {
   viewerReview: Review;
@@ -47,9 +48,7 @@ const Reviews = ({ movieId, viewer, reviews }: ReviewsProps) => {
       ) : (
         <p className='mt-2 mb-4'>
           What are your thoughts on this movie?{' '}
-          <a href='/api/auth/login' className='underline hover:no-underline'>
-            Login
-          </a>
+          <LoginURL>Login to review</LoginURL>.
         </p>
       )}
       {reviews.length > 0 ? (
