@@ -9,22 +9,28 @@ import { ArrowLeft } from 'lucide-react';
 export const BackButton = ({ className }: { className: string }) => {
   const params = useParams();
 
-  const href = useMemo(() => {
+  const previousPage = useMemo(() => {
     if (params.reviewId) {
-      return `/movies/${params.movieId}`;
+      return {
+        href: `/movies/${params.movieId}`,
+        label: 'Movie',
+      };
     }
 
     if (params.movieId) {
-      return '/';
+      return {
+        href: '/',
+        label: 'Home',
+      };
     }
 
     return null;
   }, [params]);
 
-  return href ? (
+  return previousPage ? (
     <Button variant='link' asChild className={className}>
-      <Link href={href}>
-        <ArrowLeft /> Go back
+      <Link href={previousPage.href}>
+        <ArrowLeft /> {previousPage.label}
       </Link>
     </Button>
   ) : null;
