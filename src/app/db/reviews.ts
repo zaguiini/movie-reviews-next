@@ -20,9 +20,16 @@ export const insertReview = ({
     .returning();
 };
 
-export const getReviews = ({ movieId }: Pick<Review, 'movieId'>) => {
+export const getReviewsByMovieId = (movieId: number) => {
   return db
     .select()
     .from(schema.ReviewsTable)
     .where(eq(schema.ReviewsTable.movieId, movieId));
+};
+
+export const getReviewsByOwner = (owner: string) => {
+  return db
+    .select()
+    .from(schema.ReviewsTable)
+    .where(eq(schema.ReviewsTable.owner, owner));
 };

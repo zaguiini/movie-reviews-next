@@ -9,13 +9,21 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-lg border border-zinc-200 bg-white text-zinc-950 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50',
+      'rounded-lg overflow-hidden border border-zinc-200 bg-white text-zinc-950 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50',
       className
     )}
     {...props}
   />
 ));
 Card.displayName = 'Card';
+
+const CardSidebar = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('self-stretch', className)} {...props} />
+));
+CardSidebar.displayName = 'CardSidebar';
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -75,6 +83,7 @@ CardFooter.displayName = 'CardFooter';
 
 export {
   Card,
+  CardSidebar,
   CardHeader,
   CardFooter,
   CardTitle,

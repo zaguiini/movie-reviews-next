@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { getMovieById } from 'src/app/lib/movies-service';
 import { WriteReviewForm } from './WriteReviewForm';
-import { Review, getReviews } from 'src/app/db/reviews';
+import { Review, getReviewsByMovieId } from 'src/app/db/reviews';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { ReviewCard } from 'src/components/ReviewCard';
 import { LoginURL } from 'src/components/LoginURL';
@@ -18,13 +18,19 @@ const ViewerAndReviews = ({
   return (
     <div>
       <h2 className='text-2xl font-bold mb-4'>Your review</h2>
-      <ReviewCard {...viewerReview} />
+      <ReviewCard {...viewerReview} review={viewerReview} />
       <h3 className='text-2xl font-bold mt-6 mb-4'>Other reviews</h3>
-      {otherReviews.length > 0
-        ? otherReviews.map((review) => (
-            <ReviewCard key={review.id} {...review} />
-          ))
-        : 'No other reviews. This feels very quiet...'}
+      {otherReviews.length > 0 ? (
+        <ul className='flex flex-col gap-2'>
+          {otherReviews.map((review) => (
+            <li key={review.id}>
+              <ReviewCard review={review} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        'No other reviews. This feels very quiet...'
+      )}
     </div>
   );
 };
@@ -54,7 +60,9 @@ const Reviews = ({ movieId, viewer, reviews }: ReviewsProps) => {
       {reviews.length > 0 ? (
         <ul className='flex flex-col gap-2'>
           {reviews.map((review) => (
-            <ReviewCard key={review.id} {...review} />
+            <li key={review.id}>
+              <ReviewCard review={review} />
+            </li>
           ))}
         </ul>
       ) : (
@@ -74,7 +82,7 @@ export default async function MovieReviews({
   const [viewer, movie, reviews] = await Promise.all([
     getPotentialUser(),
     getMovieById(movieId),
-    getReviews({ movieId }),
+    getReviewsByMovieId(movieId),
   ]);
 
   const viewerReview = viewer
