@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Movie } from 'src/app/lib/movies-service';
 import Image from 'next/image';
-import { SearchInput } from './ui/SearchInput';
+import { SearchInput } from '../components/ui/SearchInput';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 

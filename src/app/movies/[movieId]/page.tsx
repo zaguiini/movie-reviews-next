@@ -1,9 +1,8 @@
-import { getMovieById } from 'src/app/lib/movies-service';
 import { WriteReviewForm } from './WriteReviewForm';
 import { Review, getReviewsByMovieId } from 'src/app/db/reviews';
 import { getPotentialUser } from 'src/app/lib/auth';
-import { ReviewCard } from 'src/components/ReviewCard';
-import { LoginURL } from 'src/components/LoginURL';
+import { ReviewCard } from './reviews/ReviewCard';
+import { LoginURL } from './LoginURL';
 
 interface ViewerAndReviewsProps {
   viewerReview: Review;

@@ -1,8 +1,8 @@
-import { MoviesSearch } from './movies/MoviesSearch';
+import { MoviesSearch } from './MoviesSearch';
 import { getUser } from './lib/auth';
 import { getReviewsByOwner } from './db/reviews';
-import { ReviewCard } from 'src/components/ReviewCard';
 import { getMovieById } from './lib/movies-service';
+import { MyReviewCard } from './MyReviewCard';
 
 export async function Dashboard({ query = '' }) {
   const user = await getUser();
@@ -22,7 +22,10 @@ export async function Dashboard({ query = '' }) {
             <ul className='grid grid-cols-2 gap-2'>
               {reviews.map((review, index) => (
                 <li key={review.id}>
-                  <ReviewCard movie={moviesForReviews[index]} review={review} />
+                  <MyReviewCard
+                    movie={moviesForReviews[index]}
+                    review={review}
+                  />
                 </li>
               ))}
             </ul>

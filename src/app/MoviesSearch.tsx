@@ -1,4 +1,4 @@
-import { MoviesList } from 'src/components/MoviesList';
+import { MoviesList } from './MoviesList';
 import { getPopularMovies, queryMovies } from 'src/app/lib/movies-service';
 
 interface MoviesSearchProps {
