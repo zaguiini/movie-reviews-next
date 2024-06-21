@@ -5,15 +5,29 @@ import {
   CardHeader,
   CardTitle,
 } from '../../../../../components/ui/Card';
-import { getReviewById } from '../../../../db/reviews';
+import { getReviewById } from 'src/app/db/reviews';
 
 export default async function ReviewDetail({
   params,
 }: {
-  params: { reviewId: string };
+  params: { movieId: string; reviewId: string };
 }) {
   const reviewId = parseInt(params.reviewId, 10);
-  const [review] = await getReviewById(reviewId);
+  const review = await getReviewById(reviewId);
+
+  if (!review) {
+    return (
+      <p>
+        Not found.{' '}
+        <Link
+          href={`/movies/${params.movieId}`}
+          className='underline hover:no-underline'
+        >
+          Browse reviews
+        </Link>
+      </p>
+    );
+  }
 
   return (
     <div>

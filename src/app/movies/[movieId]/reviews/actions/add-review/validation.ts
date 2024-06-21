@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { schema } from 'root/db/db';
 
 type ReviewFormFields = Omit<
-  InferInsertModel<typeof schema.ReviewsTable>,
+  InferInsertModel<typeof schema.reviews>,
   'id' | 'owner' | 'createdAt'
 >;
 

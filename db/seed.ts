@@ -3,7 +3,7 @@ import { db, schema } from './db';
 
 const seed = async () => {
   await db
-    .insert(schema.ReviewsTable)
+    .insert(schema.reviews)
     .values([
       {
         owner: 'luisfelipezaguini@gmail.com',

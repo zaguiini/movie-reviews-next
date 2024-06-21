@@ -7,7 +7,7 @@ import {
   unique,
 } from 'drizzle-orm/pg-core';
 
-export const ReviewsTable = pgTable(
+export const reviews = pgTable(
   'reviews',
   {
     id: serial('id').primaryKey(),
