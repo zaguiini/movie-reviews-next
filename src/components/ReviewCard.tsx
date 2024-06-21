@@ -4,7 +4,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardSidebar,
+  CardAside,
   CardTitle,
 } from './ui/Card';
 import { Movie } from 'src/app/lib/movies-service';
@@ -24,7 +24,7 @@ export const ReviewCard = ({
         <Card>
           <div className='flex'>
             {movie.poster_path && (
-              <CardSidebar className='aspect-[9/15] relative max-w-[100px] w-full'>
+              <CardAside className='aspect-[9/15] relative max-w-[100px] w-full'>
                 <Image
                   src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                   alt={`Cover for ${movie.title}`}
@@ -34,7 +34,7 @@ export const ReviewCard = ({
                     objectFit: 'cover',
                   }}
                 />
-              </CardSidebar>
+              </CardAside>
             )}
             <div>
               <CardHeader>

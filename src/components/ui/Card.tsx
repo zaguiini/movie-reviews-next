@@ -17,13 +17,13 @@ const Card = React.forwardRef<
 ));
 Card.displayName = 'Card';
 
-const CardSidebar = React.forwardRef<
+const CardAside = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn('self-stretch', className)} {...props} />
 ));
-CardSidebar.displayName = 'CardSidebar';
+CardAside.displayName = 'CardAside';
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -83,7 +83,7 @@ CardFooter.displayName = 'CardFooter';
 
 export {
   Card,
-  CardSidebar,
+  CardAside,
   CardHeader,
   CardFooter,
   CardTitle,
