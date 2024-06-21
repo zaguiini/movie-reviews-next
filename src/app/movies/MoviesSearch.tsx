@@ -1,5 +1,5 @@
-import { MoviesList } from '../../components/MoviesList';
-import { getPopularMovies, queryMovies } from '../lib/movies-service';
+import { MoviesList } from 'src/components/MoviesList';
+import { getPopularMovies, queryMovies } from 'src/app/lib/movies-service';
 
 interface MoviesSearchProps {
   query: string;

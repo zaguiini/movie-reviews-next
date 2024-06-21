@@ -1,7 +1,7 @@
 import { MoviesSearch } from './movies/MoviesSearch';
 import { getUser } from './lib/auth';
 import { getReviewsByOwner } from './db/reviews';
-import { ReviewCard } from '../components/ReviewCard';
+import { ReviewCard } from 'src/components/ReviewCard';
 import { getMovieById } from './lib/movies-service';
 
 export async function Dashboard({ query = '' }) {
@@ -14,12 +14,7 @@ export async function Dashboard({ query = '' }) {
 
   return (
     <div className='flex flex-col gap-10'>
-      <div className='flex flex-1 items-center justify-between'>
-        <h2 className='text-3xl font-bold tracking-tight'>
-          Hello, {user.name}!
-        </h2>
-        <a href='/api/auth/logout'>Logout</a>
-      </div>
+      <h2 className='text-3xl font-bold tracking-tight'>Hello, {user.name}!</h2>
       {reviews.length > 0 ? (
         <div className='flex flex-col gap-8'>
           <div>
