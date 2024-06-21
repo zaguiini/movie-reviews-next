@@ -1,6 +1,17 @@
+import { InferInsertModel } from 'drizzle-orm';
 import { z } from 'zod';
+import { schema } from 'root/db/db';
 
-export const reviewForm = z.object({
+type ReviewFormFields = Omit<
+  InferInsertModel<typeof schema.ReviewsTable>,
+  'id' | 'owner' | 'createdAt'
+>;
+
+export const reviewForm: z.ZodType<
+  ReviewFormFields,
+  z.ZodTypeDef,
+  ReviewFormFields
+> = z.object({
   movieId: z.number(),
   title: z.string(),
   review: z.string().min(32),
