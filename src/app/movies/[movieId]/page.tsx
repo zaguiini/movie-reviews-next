@@ -17,7 +17,7 @@ const ViewerAndReviews = ({
   return (
     <div>
       <h2 className='text-2xl font-bold mb-4'>Your review</h2>
-      <ReviewCard {...viewerReview} review={viewerReview} />
+      <ReviewCard review={viewerReview} />
       <h3 className='text-2xl font-bold mt-6 mb-4'>Other reviews</h3>
       {otherReviews.length > 0 ? (
         <ul className='flex flex-col gap-2'>
@@ -78,9 +78,8 @@ export default async function MovieReviews({
 }) {
   const movieId = parseInt(params.movieId, 10);
 
-  const [viewer, movie, reviews] = await Promise.all([
+  const [viewer, reviews] = await Promise.all([
     getPotentialUser(),
-    getMovieById(movieId),
     getReviewsByMovieId(movieId),
   ]);
 
