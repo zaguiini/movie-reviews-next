@@ -31,8 +31,7 @@ export const ReviewCard = ({
       <CardContent>{review.review}</CardContent>
       <CardFooter className='flex gap-x-6 justify-start'>
         <ThumbsCounter
-          up={{ total: 4, users: ['user1', 'user2', 'user3', 'user4'] }}
-          down={{ total: 0, users: [] }}
+          ratings={review.ratings}
           isReadOnly={areThumbsReadOnly}
         />
         <span className='underline hover:no-underline'>Read reaction</span>

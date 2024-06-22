@@ -13,6 +13,17 @@ const seed = async () => {
       },
     ])
     .onConflictDoNothing();
+
+  await db
+    .insert(schema.ratings)
+    .values([
+      {
+        owner: 'seconduser@gmail.com',
+        reviewId: 1,
+        outcome: 'positive',
+      },
+    ])
+    .onConflictDoNothing();
 };
 
 async function run() {

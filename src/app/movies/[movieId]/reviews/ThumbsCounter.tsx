@@ -7,19 +7,12 @@ import { Button } from 'src/components/ui/Button';
 
 interface ThumbsCounterProps {
   isReadOnly: boolean;
-  up: {
-    total: number;
-    users: string[];
-  };
-  down: {
-    total: number;
-    users: string[];
-  };
+  ratings: { positive: number; negative: number };
 }
 
 const noop = () => {};
 
-export const ThumbsCounter = ({ up, down, isReadOnly }: ThumbsCounterProps) => {
+export const ThumbsCounter = ({ ratings, isReadOnly }: ThumbsCounterProps) => {
   const thumbsUpButton = createElement(
     isReadOnly ? 'div' : Button,
     {
@@ -27,7 +20,7 @@ export const ThumbsCounter = ({ up, down, isReadOnly }: ThumbsCounterProps) => {
       onClick: isReadOnly ? undefined : noop,
     },
     <ThumbsUp size={16} />,
-    up.total
+    ratings.positive
   );
 
   const thumbsDownButton = createElement(
@@ -37,18 +30,18 @@ export const ThumbsCounter = ({ up, down, isReadOnly }: ThumbsCounterProps) => {
       onClick: isReadOnly ? undefined : noop,
     },
     <ThumbsDown size={16} />,
-    down.total
+    ratings.negative
   );
 
   return (
     <>
-      {up.users.length > 0 ? (
-        <Tooltip trigger={thumbsUpButton} content={up.users.join(', ')} />
+      {ratings.positive > 0 ? (
+        <Tooltip trigger={thumbsUpButton} content={[].join(', ')} />
       ) : (
         thumbsUpButton
       )}
-      {down.users.length > 0 ? (
-        <Tooltip trigger={thumbsDownButton} content={down.users.join(', ')} />
+      {ratings.negative > 0 ? (
+        <Tooltip trigger={thumbsDownButton} content={[].join(', ')} />
       ) : (
         thumbsDownButton
       )}

@@ -1,5 +1,7 @@
+import { relations } from 'drizzle-orm';
 import {
   integer,
+  pgEnum,
   pgTable,
   serial,
   text,
@@ -21,3 +23,30 @@ export const reviews = pgTable(
     unq: unique().on(reviews.movieId, reviews.owner),
   })
 );
+
+export const reviewsRelations = relations(reviews, ({ many }) => ({
+  ratings: many(ratings),
+}));
+
+export const outcomeEnum = pgEnum('outcome', ['positive', 'negative']);
+
+export const ratings = pgTable(
+  'ratings',
+  {
+    id: serial('id').primaryKey(),
+    reviewId: integer('review_id'),
+    owner: text('owner').notNull(),
+    outcome: outcomeEnum('outcome').notNull(),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+  },
+  (ratings) => ({
+    unq: unique().on(ratings.reviewId, ratings.owner),
+  })
+);
+
+export const ratingsRelations = relations(ratings, ({ one }) => ({
+  review: one(reviews, {
+    fields: [ratings.reviewId],
+    references: [reviews.id],
+  }),
+}));

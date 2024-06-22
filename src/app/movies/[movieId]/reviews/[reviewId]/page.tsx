@@ -45,8 +45,7 @@ export default async function ReviewDetail({
 
         <div className='flex mt-4 gap-x-6 justify-start'>
           <ThumbsCounter
-            up={{ total: 4, users: ['user1', 'user2', 'user3', 'user4'] }}
-            down={{ total: 0, users: [] }}
+            ratings={review.ratings}
             isReadOnly={!viewer || review.owner === viewer.email}
           />
         </div>
