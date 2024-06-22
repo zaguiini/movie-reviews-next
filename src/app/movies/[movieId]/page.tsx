@@ -16,7 +16,7 @@ const ViewerAndReviews = ({
   return (
     <div>
       <h2 className='text-2xl font-bold mb-4'>Your review</h2>
-      <ReviewCard review={viewerReview} />
+      <ReviewCard review={viewerReview} areThumbsReadOnly />
       <h3 className='text-2xl font-bold mt-6 mb-4'>Other reviews</h3>
       {otherReviews.length > 0 ? (
         <ul className='flex flex-col gap-2'>
@@ -59,7 +59,7 @@ const Reviews = ({ movieId, viewer, reviews }: ReviewsProps) => {
         <ul className='flex flex-col gap-2'>
           {reviews.map((review) => (
             <li key={review.id}>
-              <ReviewCard review={review} />
+              <ReviewCard review={review} areThumbsReadOnly={!viewer} />
             </li>
           ))}
         </ul>

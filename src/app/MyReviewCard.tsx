@@ -9,9 +9,11 @@ import {
   CardDescription,
   CardTitle,
   CardContent,
+  CardFooter,
 } from 'src/components/ui/Card';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ThumbsCounter } from './movies/[movieId]/reviews/ThumbsCounter';
 
 export const MyReviewCard = ({
   movie,
@@ -42,6 +44,14 @@ export const MyReviewCard = ({
             <CardTitle className='text-lg'>{review.title}</CardTitle>
           </CardHeader>
           <CardContent>{review.review}</CardContent>
+          <CardFooter className='flex gap-x-6 justify-start'>
+            <ThumbsCounter
+              up={{ total: 4, users: ['user1', 'user2', 'user3', 'user4'] }}
+              down={{ total: 0, users: [] }}
+              isReadOnly
+            />
+            <span className='underline hover:no-underline'>Read reaction</span>
+          </CardFooter>
         </div>
       </div>
     </Card>

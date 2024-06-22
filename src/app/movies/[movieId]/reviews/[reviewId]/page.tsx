@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { CardDescription, CardTitle } from 'src/components/ui/Card';
 import { getReviewById } from 'src/app/db/reviews';
+import { ThumbsCounter } from '../ThumbsCounter';
+import { getPotentialUser } from 'src/app/lib/auth';
 
 export default async function ReviewDetail({
   params,
 }: {
   params: { movieId: string; reviewId: string };
 }) {
+  const viewer = await getPotentialUser();
   const reviewId = parseInt(params.reviewId, 10);
   const review = await getReviewById(reviewId);
 
@@ -39,6 +42,14 @@ export default async function ReviewDetail({
         </CardTitle>
 
         <p>{review.review}</p>
+
+        <div className='flex mt-4 gap-x-6 justify-start'>
+          <ThumbsCounter
+            up={{ total: 4, users: ['user1', 'user2', 'user3', 'user4'] }}
+            down={{ total: 0, users: [] }}
+            isReadOnly={!viewer || review.owner === viewer.email}
+          />
+        </div>
       </div>
     </div>
   );

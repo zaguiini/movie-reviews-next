@@ -3,12 +3,20 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from 'src/components/ui/Card';
 import Link from 'next/link';
+import { ThumbsCounter } from './ThumbsCounter';
 
-export const ReviewCard = ({ review }: { review: Review }) => {
+export const ReviewCard = ({
+  review,
+  areThumbsReadOnly = false,
+}: {
+  review: Review;
+  areThumbsReadOnly?: boolean;
+}) => {
   return (
     <Card>
       <CardHeader>
@@ -21,6 +29,14 @@ export const ReviewCard = ({ review }: { review: Review }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>{review.review}</CardContent>
+      <CardFooter className='flex gap-x-6 justify-start'>
+        <ThumbsCounter
+          up={{ total: 4, users: ['user1', 'user2', 'user3', 'user4'] }}
+          down={{ total: 0, users: [] }}
+          isReadOnly={areThumbsReadOnly}
+        />
+        <span className='underline hover:no-underline'>Read reaction</span>
+      </CardFooter>
     </Card>
   );
 };
