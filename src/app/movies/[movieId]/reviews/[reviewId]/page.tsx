@@ -45,6 +45,7 @@ export default async function ReviewDetail({
 
         <div className='flex mt-4 gap-x-6 justify-start'>
           <ThumbsCounter
+            reviewId={review.id}
             ratings={review.ratings}
             isReadOnly={!viewer || review.owner === viewer.email}
           />

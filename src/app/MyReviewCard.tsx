@@ -45,7 +45,11 @@ export const MyReviewCard = ({
           </CardHeader>
           <CardContent>{review.review}</CardContent>
           <CardFooter className='flex gap-x-6 justify-start'>
-            <ThumbsCounter ratings={review.ratings} isReadOnly />
+            <ThumbsCounter
+              reviewId={review.id}
+              ratings={review.ratings}
+              isReadOnly
+            />
             <span className='underline hover:no-underline'>Read reaction</span>
           </CardFooter>
         </div>

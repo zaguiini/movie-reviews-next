@@ -31,6 +31,7 @@ export const ReviewCard = ({
       <CardContent>{review.review}</CardContent>
       <CardFooter className='flex gap-x-6 justify-start'>
         <ThumbsCounter
+          reviewId={review.id}
           ratings={review.ratings}
           isReadOnly={areThumbsReadOnly}
         />
