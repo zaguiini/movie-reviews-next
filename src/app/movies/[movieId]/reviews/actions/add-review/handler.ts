@@ -21,7 +21,7 @@ export async function addReview(formData: ReviewFormData) {
     await inngest.send({
       name: 'reviews/send.new.reaction.email',
       data: {
-        reviewId: review.id,
+        reactionId: review.id,
       },
     });
   }

@@ -6,7 +6,7 @@ export const inngest = new Inngest({
   schemas: new EventSchemas().fromZod({
     'reviews/send.new.reaction.email': {
       data: z.object({
-        reviewId: z.number(),
+        reactionId: z.number(),
       }),
     },
   }),
