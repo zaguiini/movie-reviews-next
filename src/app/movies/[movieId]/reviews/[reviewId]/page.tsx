@@ -4,6 +4,14 @@ import { getReviewById } from 'src/app/db/reviews';
 import { ThumbsCounter } from '../ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { getRating } from '../../../../db/ratings';
+import { Suspense } from 'react';
+import { ReviewCard } from '../ReviewCard';
+
+const ReactionCard = async ({ reviewId }: { reviewId: number }) => {
+  const review = await getReviewById(reviewId);
+
+  return <ReviewCard review={review} />;
+};
 
 export default async function ReviewDetail({
   params,
@@ -50,14 +58,26 @@ export default async function ReviewDetail({
 
         <p>{review.review}</p>
 
-        <div className='flex mt-4 gap-x-6 justify-start'>
+        <div className='flex mt-4 gap-x-6 items-center justify-start'>
           <ThumbsCounter
             reviewId={review.id}
             ratings={review.ratings}
             myRating={myRating?.outcome}
             isReadOnly={!viewer || review.owner === viewer.email}
           />
+          <span>
+            {review.reaction_ids.length === 1
+              ? '1 reaction'
+              : `${review.reaction_ids.length} reactions`}
+          </span>
         </div>
+      </div>
+      <div className='mt-6'>
+        {review.reaction_ids.map((reaction) => (
+          <Suspense key={reaction}>
+            <ReactionCard reviewId={reaction} />
+          </Suspense>
+        ))}
       </div>
     </div>
   );

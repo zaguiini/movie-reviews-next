@@ -49,9 +49,13 @@ export function MyReviewCard({
                 ratings={review.ratings}
                 isReadOnly
               />
-              <span className='underline hover:no-underline'>
-                Read reaction
-              </span>
+              {review.reaction_ids.length > 0 && (
+                <span className='underline hover:no-underline'>
+                  {review.reaction_ids.length === 1
+                    ? 'Read reaction'
+                    : 'Read reactions'}
+                </span>
+              )}
             </CardFooter>
           </div>
         </div>

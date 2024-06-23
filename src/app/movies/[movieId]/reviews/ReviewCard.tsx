@@ -43,7 +43,16 @@ export const ReviewCard = async ({
           isReadOnly={areThumbsReadOnly}
           myRating={myRating?.outcome}
         />
-        <span className='underline hover:no-underline'>Read reaction</span>
+        {review.reaction_ids.length > 0 && (
+          <Link
+            href={`/movies/${review.movieId}/reviews/${review.id}`}
+            className='underline hover:no-underline'
+          >
+            {review.reaction_ids.length === 1
+              ? 'Read reaction'
+              : 'Read reactions'}
+          </Link>
+        )}
       </CardFooter>
     </Card>
   );
