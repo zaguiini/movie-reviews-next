@@ -21,7 +21,9 @@ export const reviews = pgTable(
     parentReviewId: integer('parent_review_id'),
   },
   (reviews) => ({
-    unq: unique().on(reviews.movieId, reviews.owner),
+    unique_reaction_by_review_by_movie: unique()
+      .on(reviews.movieId, reviews.owner, reviews.parentReviewId)
+      .nullsNotDistinct(),
   })
 );
 

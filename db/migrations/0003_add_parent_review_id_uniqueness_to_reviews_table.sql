@@ -1,0 +1,2 @@
+ALTER TABLE "reviews" DROP CONSTRAINT "reviews_movie_id_owner_unique";--> statement-breakpoint
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_movie_id_owner_parent_review_id_unique" UNIQUE NULLS NOT DISTINCT("movie_id","owner","parent_review_id");
