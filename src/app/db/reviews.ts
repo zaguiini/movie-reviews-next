@@ -1,4 +1,5 @@
-import { InferInsertModel, eq, sql, sum } from 'drizzle-orm';
+import { InferInsertModel, and, eq, isNull, sql, sum } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { db, schema } from 'root/db/db';
 
 export type Review = NonNullable<
@@ -23,6 +24,8 @@ export const insertReview = ({
 };
 
 const buildReviewWithRatingsQuery = () => {
+  const reactions = alias(schema.reviews, 'reactions');
+
   const ratings = db
     .select({
       reviewId: schema.ratings.reviewId,
@@ -46,22 +49,32 @@ const buildReviewWithRatingsQuery = () => {
       title: schema.reviews.title,
       review: schema.reviews.review,
       ratings: {
-        positive: sql`coalesce(${ratings.positive}, 0)`.mapWith(Number),
-        negative: sql`coalesce(${ratings.negative}, 0)`.mapWith(Number),
+        positive: sql`sum(coalesce(${ratings.positive}, 0))`.mapWith(Number),
+        negative: sql`sum(coalesce(${ratings.negative}, 0))`.mapWith(Number),
       },
+      reaction_ids: sql<
+        number[]
+      >`array_remove(array_agg(${reactions.id} order by ${reactions.createdAt} desc), null)`,
     })
     .from(schema.reviews)
-    .leftJoin(ratings, eq(schema.reviews.id, ratings.reviewId));
+    .leftJoin(ratings, eq(schema.reviews.id, ratings.reviewId))
+    .leftJoin(reactions, eq(schema.reviews.id, reactions.parentReviewId))
+    .groupBy(schema.reviews.id);
 };
 
 export const getReviewsByMovieId = (movieId: number) => {
   return buildReviewWithRatingsQuery().where(
-    eq(schema.reviews.movieId, movieId)
+    and(
+      isNull(schema.reviews.parentReviewId),
+      eq(schema.reviews.movieId, movieId)
+    )
   );
 };
 
 export const getReviewsByOwner = (owner: string) => {
-  return buildReviewWithRatingsQuery().where(eq(schema.reviews.owner, owner));
+  return buildReviewWithRatingsQuery().where(
+    and(isNull(schema.reviews.parentReviewId), eq(schema.reviews.owner, owner))
+  );
 };
 
 export const getReviewById = async (reviewId: number) => {

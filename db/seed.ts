@@ -24,6 +24,17 @@ const seed = async () => {
       },
     ])
     .onConflictDoNothing();
+
+  await db.insert(schema.reviews).values([
+    {
+      owner: 'elzaga@ok.com',
+      movieId: 1022789,
+      title: 'What?',
+      review:
+        'Are you a 10 year old? You should not be on the internet at this age. Go touch some grass...',
+      parentReviewId: 1,
+    },
+  ]);
 };
 
 async function run() {

@@ -18,14 +18,19 @@ export const reviews = pgTable(
     title: text('title').notNull(),
     review: text('review').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
+    parentReviewId: integer('parent_review_id'),
   },
   (reviews) => ({
     unq: unique().on(reviews.movieId, reviews.owner),
   })
 );
 
-export const reviewsRelations = relations(reviews, ({ many }) => ({
+export const reviewsRelations = relations(reviews, ({ many, one }) => ({
   ratings: many(ratings),
+  parentReview: one(reviews, {
+    fields: [reviews.parentReviewId],
+    references: [reviews.id],
+  }),
 }));
 
 export const outcomeEnum = pgEnum('outcome', ['positive', 'negative']);
