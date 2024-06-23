@@ -1,4 +1,13 @@
-import { InferInsertModel, and, eq, isNull, sql, sum } from 'drizzle-orm';
+import {
+  InferInsertModel,
+  and,
+  count,
+  eq,
+  isNotNull,
+  isNull,
+  sql,
+  sum,
+} from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db, schema } from 'root/db/db';
 
@@ -88,4 +97,34 @@ export const getReaction = async ({
       eq(schema.reviews.parentReviewId, parentReviewId)
     ),
   });
+};
+
+const getDate = (date: Date) => date.toISOString().split('T')[0];
+
+export const getReviewsCountByDate = async ({ date }: { date: Date }) => {
+  const [result] = await db
+    .select({ count: count() })
+    .from(schema.reviews)
+    .where(
+      and(
+        eq(schema.reviews.createdAt, getDate(date)),
+        isNull(schema.reviews.parentReviewId)
+      )
+    );
+
+  return result?.count ?? 0;
+};
+
+export const getReactionsCountByDate = async ({ date }: { date: Date }) => {
+  const [result] = await db
+    .select({ count: count() })
+    .from(schema.reviews)
+    .where(
+      and(
+        eq(schema.reviews.createdAt, getDate(date)),
+        isNotNull(schema.reviews.parentReviewId)
+      )
+    );
+
+  return result?.count ?? 0;
 };

@@ -5,7 +5,7 @@ import {
   pgTable,
   serial,
   text,
-  timestamp,
+  date,
   unique,
 } from 'drizzle-orm/pg-core';
 
@@ -17,7 +17,7 @@ export const reviews = pgTable(
     owner: text('owner').notNull(),
     title: text('title').notNull(),
     review: text('review').notNull(),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    createdAt: date('created_at').defaultNow().notNull(),
     parentReviewId: integer('parent_review_id'),
   },
   (reviews) => ({
@@ -44,7 +44,7 @@ export const ratings = pgTable(
     reviewId: integer('review_id'),
     owner: text('owner').notNull(),
     outcome: outcomeEnum('outcome').notNull(),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    createdAt: date('created_at').defaultNow().notNull(),
   },
   (ratings) => ({
     unq: unique().on(ratings.reviewId, ratings.owner),
