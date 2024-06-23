@@ -3,15 +3,18 @@ import { CardDescription, CardTitle } from 'src/components/ui/Card';
 import { getReviewById } from 'src/app/db/reviews';
 import { ThumbsCounter } from '../ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
+import { getRating } from '../../../../db/ratings';
 
 export default async function ReviewDetail({
   params,
 }: {
   params: { movieId: string; reviewId: string };
 }) {
-  const viewer = await getPotentialUser();
   const reviewId = parseInt(params.reviewId, 10);
-  const review = await getReviewById(reviewId);
+  const [viewer, review] = await Promise.all([
+    getPotentialUser(),
+    await getReviewById(reviewId),
+  ]);
 
   if (!review) {
     return (
@@ -26,6 +29,10 @@ export default async function ReviewDetail({
       </p>
     );
   }
+
+  const myRating = viewer
+    ? await getRating({ reviewId: review.id, owner: viewer.email })
+    : undefined;
 
   return (
     <div>
@@ -47,6 +54,7 @@ export default async function ReviewDetail({
           <ThumbsCounter
             reviewId={review.id}
             ratings={review.ratings}
+            myRating={myRating?.outcome}
             isReadOnly={!viewer || review.owner === viewer.email}
           />
         </div>

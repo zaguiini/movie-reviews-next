@@ -9,14 +9,21 @@ import {
 } from 'src/components/ui/Card';
 import Link from 'next/link';
 import { ThumbsCounter } from './ThumbsCounter';
+import { getPotentialUser } from 'src/app/lib/auth';
+import { getRating } from '../../../db/ratings';
 
-export const ReviewCard = ({
+export const ReviewCard = async ({
   review,
   areThumbsReadOnly = false,
 }: {
   review: Review;
   areThumbsReadOnly?: boolean;
 }) => {
+  const user = await getPotentialUser();
+  const myRating = user
+    ? await getRating({ reviewId: review.id, owner: user.email })
+    : undefined;
+
   return (
     <Card>
       <CardHeader>
@@ -34,6 +41,7 @@ export const ReviewCard = ({
           reviewId={review.id}
           ratings={review.ratings}
           isReadOnly={areThumbsReadOnly}
+          myRating={myRating?.outcome}
         />
         <span className='underline hover:no-underline'>Read reaction</span>
       </CardFooter>
