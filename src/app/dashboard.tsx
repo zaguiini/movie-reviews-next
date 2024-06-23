@@ -3,8 +3,10 @@ import { getUser } from './lib/auth';
 import { getReviewsByOwner } from './db/reviews';
 import { getMovieById } from './lib/movies-service';
 import { MyReviewCard } from './MyReviewCard';
+import { getTranslations } from 'next-intl/server';
 
 export async function Dashboard({ query = '' }) {
+  const t = await getTranslations();
   const user = await getUser();
 
   const reviews = await getReviewsByOwner(user.email);
@@ -14,7 +16,9 @@ export async function Dashboard({ query = '' }) {
 
   return (
     <div className='flex flex-col gap-10'>
-      <h2 className='text-3xl font-bold tracking-tight'>Hello, {user.name}!</h2>
+      <h2 className='text-3xl font-bold tracking-tight'>
+        {t('hello_name', { name: user.name })}
+      </h2>
       {reviews.length > 0 ? (
         <div className='flex flex-col gap-8'>
           <div>
