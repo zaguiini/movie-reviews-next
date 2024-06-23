@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { getMovieById } from 'src/app/lib/movies-service';
+import { formatDate } from '../../../lib/format';
 
 interface LayoutProps {
   children: ReactNode;
@@ -36,7 +37,8 @@ export default async function Layout({ children, params }: LayoutProps) {
         <h2 className='text-2xl mb-2 font-bold'>Description</h2>
         <p>{movie.overview}</p>
         <p className='mt-4'>
-          <span className='font-bold'>Release date</span> {movie.release_date}
+          <span className='font-bold'>Release date</span>{' '}
+          {movie.release_date ? formatDate(movie.release_date) : 'Unknown'}
         </p>
       </div>
       <div className='grid-in-[content]'>{children}</div>

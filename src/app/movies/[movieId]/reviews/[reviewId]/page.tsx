@@ -5,6 +5,7 @@ import { ThumbsCounter } from '../ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { getRating } from '../../../../db/ratings';
 import { Reactions } from './Reactions';
+import { formatDate } from 'src/lib/format';
 
 export default async function ReviewDetail({
   params,
@@ -40,8 +41,7 @@ export default async function ReviewDetail({
       <div className='flex flex-col'>
         <CardDescription>
           {review.parentReviewId ? 'Reaction' : 'Review'} by{' '}
-          {review.owner.split('@')[0]} on{' '}
-          {new Intl.DateTimeFormat('en').format(review.createdAt)}
+          {review.owner.split('@')[0]} on {formatDate(review.createdAt)}
         </CardDescription>
 
         <CardTitle className='text-lg mt-2 mb-4'>

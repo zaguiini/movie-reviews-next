@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { ThumbsCounter } from './ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { getRating } from '../../../db/ratings';
+import { formatDate } from 'src/lib/format';
 
 export const ReviewCard = async ({
   review,
@@ -33,8 +34,7 @@ export const ReviewCard = async ({
           <CardTitle className='text-lg'>{review.title}</CardTitle>
         </Link>
         <CardDescription>
-          {review.owner.split('@')[0]} on{' '}
-          {new Intl.DateTimeFormat('en').format(review.createdAt)}
+          {review.owner.split('@')[0]} on {formatDate(review.createdAt)}
         </CardDescription>
       </CardHeader>
       <CardContent>{review.review}</CardContent>
