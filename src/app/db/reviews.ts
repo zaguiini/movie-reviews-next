@@ -6,21 +6,10 @@ export type Review = NonNullable<
   Awaited<ReturnType<typeof getReviewsByMovieId>>
 >[number];
 
-export const insertReview = ({
-  owner,
-  movieId,
-  title,
-  review,
-}: InferInsertModel<typeof schema.reviews>) => {
-  return db
-    .insert(schema.reviews)
-    .values({
-      owner,
-      movieId,
-      title,
-      review,
-    })
-    .returning();
+export const insertReview = (
+  params: InferInsertModel<typeof schema.reviews>
+) => {
+  return db.insert(schema.reviews).values(params).returning();
 };
 
 const buildReviewWithRatingsQuery = () => {
@@ -52,6 +41,7 @@ const buildReviewWithRatingsQuery = () => {
         positive: sql`sum(coalesce(${ratings.positive}, 0))`.mapWith(Number),
         negative: sql`sum(coalesce(${ratings.negative}, 0))`.mapWith(Number),
       },
+      parentReviewId: schema.reviews.parentReviewId,
       reaction_ids: sql<
         number[]
       >`array_remove(array_agg(${reactions.id} order by ${reactions.createdAt} desc), null)`,
@@ -83,4 +73,19 @@ export const getReviewById = async (reviewId: number) => {
     .limit(1);
 
   return result;
+};
+
+export const getReaction = async ({
+  owner,
+  parentReviewId,
+}: {
+  owner: string;
+  parentReviewId: number;
+}) => {
+  return db.query.reviews.findFirst({
+    where: and(
+      eq(schema.reviews.owner, owner),
+      eq(schema.reviews.parentReviewId, parentReviewId)
+    ),
+  });
 };

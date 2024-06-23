@@ -13,6 +13,7 @@ export async function addReview(formData: ReviewFormData) {
     movieId: data.movieId,
     title: formData.title,
     review: data.review,
+    parentReviewId: data.parentReviewId,
   });
 
   return review;

@@ -4,14 +4,7 @@ import { getReviewById } from 'src/app/db/reviews';
 import { ThumbsCounter } from '../ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { getRating } from '../../../../db/ratings';
-import { Suspense } from 'react';
-import { ReviewCard } from '../ReviewCard';
-
-const ReactionCard = async ({ reviewId }: { reviewId: number }) => {
-  const review = await getReviewById(reviewId);
-
-  return <ReviewCard review={review} />;
-};
+import { Reactions } from './Reactions';
 
 export default async function ReviewDetail({
   params,
@@ -21,7 +14,7 @@ export default async function ReviewDetail({
   const reviewId = parseInt(params.reviewId, 10);
   const [viewer, review] = await Promise.all([
     getPotentialUser(),
-    await getReviewById(reviewId),
+    getReviewById(reviewId),
   ]);
 
   if (!review) {
@@ -46,7 +39,8 @@ export default async function ReviewDetail({
     <div>
       <div className='flex flex-col'>
         <CardDescription>
-          Review by {review.owner.split('@')[0]} on{' '}
+          {review.parentReviewId ? 'Reaction' : 'Review'} by{' '}
+          {review.owner.split('@')[0]} on{' '}
           {new Intl.DateTimeFormat('en').format(review.createdAt)}
         </CardDescription>
 
@@ -65,20 +59,16 @@ export default async function ReviewDetail({
             myRating={myRating?.outcome}
             isReadOnly={!viewer || review.owner === viewer.email}
           />
-          <span>
-            {review.reaction_ids.length === 1
-              ? '1 reaction'
-              : `${review.reaction_ids.length} reactions`}
-          </span>
+          {review.parentReviewId === null && (
+            <span>
+              {review.reaction_ids.length === 1
+                ? '1 reaction'
+                : `${review.reaction_ids.length} reactions`}
+            </span>
+          )}
         </div>
       </div>
-      <div className='mt-6'>
-        {review.reaction_ids.map((reaction) => (
-          <Suspense key={reaction}>
-            <ReactionCard reviewId={reaction} />
-          </Suspense>
-        ))}
-      </div>
+      <Reactions review={review} viewer={viewer} />
     </div>
   );
 }

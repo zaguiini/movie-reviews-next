@@ -20,10 +20,16 @@ import {
 } from 'src/components/ui/Form';
 import { Input } from 'src/components/ui/Input';
 
-export const WriteReviewForm = ({ movieId }: { movieId: number }) => {
+export const WriteReviewForm = ({
+  movieId,
+  parentReviewId,
+}: {
+  movieId: number;
+  parentReviewId?: number;
+}) => {
   const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewForm),
-    defaultValues: { movieId },
+    defaultValues: { movieId, parentReviewId },
   });
 
   async function onSubmit(review: ReviewFormData) {
@@ -54,7 +60,9 @@ export const WriteReviewForm = ({ movieId }: { movieId: number }) => {
           name='review'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Review</FormLabel>
+              <FormLabel>
+                {parentReviewId !== undefined ? 'Reaction' : 'Review'}
+              </FormLabel>
               <FormControl>
                 <Textarea placeholder='Please elaborate.' {...field} />
               </FormControl>
@@ -66,7 +74,7 @@ export const WriteReviewForm = ({ movieId }: { movieId: number }) => {
           {form.formState.isSubmitting && (
             <LoaderIcon className='mr-2 motion-safe:animate-[spin_3s_linear_infinite]' />
           )}
-          Write review
+          Write {parentReviewId !== undefined ? 'reaction' : 'review'}
         </Button>
       </form>
     </Form>

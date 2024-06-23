@@ -12,6 +12,7 @@ export const reviewForm: z.ZodType<
   z.ZodTypeDef,
   ReviewFormFields
 > = z.object({
+  parentReviewId: z.number().optional(),
   movieId: z.number(),
   title: z.string(),
   review: z.string().min(32),

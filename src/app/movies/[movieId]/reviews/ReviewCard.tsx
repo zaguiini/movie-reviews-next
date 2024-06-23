@@ -15,9 +15,11 @@ import { getRating } from '../../../db/ratings';
 export const ReviewCard = async ({
   review,
   areThumbsReadOnly = false,
+  hideReactionLink = false,
 }: {
   review: Review;
   areThumbsReadOnly?: boolean;
+  hideReactionLink?: boolean;
 }) => {
   const user = await getPotentialUser();
   const myRating = user
@@ -43,15 +45,19 @@ export const ReviewCard = async ({
           isReadOnly={areThumbsReadOnly}
           myRating={myRating?.outcome}
         />
-        {review.reaction_ids.length > 0 && (
-          <Link
-            href={`/movies/${review.movieId}/reviews/${review.id}`}
-            className='underline hover:no-underline'
-          >
-            {review.reaction_ids.length === 1
-              ? 'Read reaction'
-              : 'Read reactions'}
-          </Link>
+        {!hideReactionLink && (
+          <>
+            <Link
+              href={`/movies/${review.movieId}/reviews/${review.id}`}
+              className='underline hover:no-underline'
+            >
+              {review.reaction_ids.length === 0
+                ? 'See reactions'
+                : review.reaction_ids.length === 1
+                  ? 'Read reaction'
+                  : 'Read reactions'}
+            </Link>
+          </>
         )}
       </CardFooter>
     </Card>
