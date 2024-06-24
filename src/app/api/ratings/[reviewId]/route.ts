@@ -2,10 +2,10 @@ import { getRatingsByReviewId } from '../../../db/ratings';
 
 export const GET = async (
   _: Request,
-  { params }: { params: { movieId: string } }
+  { params }: { params: { reviewId: string } }
 ) => {
-  const movieId = parseInt(params.movieId, 10);
-  const ratings = await getRatingsByReviewId(movieId);
+  const reviewId = parseInt(params.reviewId, 10);
+  const ratings = await getRatingsByReviewId(reviewId);
 
   return Response.json(
     ratings.map((rating) => ({
