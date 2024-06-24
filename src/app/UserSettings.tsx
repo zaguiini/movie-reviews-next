@@ -36,7 +36,7 @@ export const UserSettings = () => {
         </HoverCardContent>
       </HoverCard>
       <Button variant='link' asChild>
-        <Link href='/api/auth/logout'>Logout</Link>
+        <a href='/api/auth/logout'>Logout</a>
       </Button>
     </div>
   );
