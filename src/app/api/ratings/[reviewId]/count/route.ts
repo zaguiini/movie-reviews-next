@@ -8,6 +8,7 @@ export async function GET(
   { params }: { params: { reviewId: string } }
 ) {
   const reviewId = parseInt(params.reviewId);
+  const encoder = new TextEncoder();
 
   let intervalId: NodeJS.Timeout;
 
@@ -21,7 +22,7 @@ export async function GET(
             ? { reviewId, positive: 0, negative: 0 }
             : result[0];
 
-        controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
 
       send();
@@ -35,7 +36,10 @@ export async function GET(
 
   return new Response(readable, {
     headers: {
-      'content-type': 'text/event-stream',
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      Connection: 'keep-alive',
+      'Cache-Control': 'no-cache',
+      'Content-Encoding': 'none',
     },
   });
 }
