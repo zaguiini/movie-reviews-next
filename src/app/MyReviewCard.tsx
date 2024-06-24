@@ -25,7 +25,7 @@ export function MyReviewCard({
       <Card>
         <div className='flex'>
           {movie.poster_path && (
-            <CardAside className='aspect-[9/15] relative max-w-[100px] w-full'>
+            <CardAside className='relative aspect-[9/14] max-w-[150px] w-full shrink-0'>
               <Image
                 src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                 alt={`Cover for ${movie.title}`}
@@ -37,12 +37,18 @@ export function MyReviewCard({
               />
             </CardAside>
           )}
-          <div>
+          <div className='min-w-0'>
             <CardHeader>
               <CardDescription>{movie.title}</CardDescription>
-              <CardTitle className='text-lg'>{review.title}</CardTitle>
+              <CardTitle className='text-lg overflow-hidden text-ellipsis whitespace-nowrap'>
+                {review.title}
+              </CardTitle>
             </CardHeader>
-            <CardContent>{review.review}</CardContent>
+            <CardContent>
+              <p className='overflow-hidden text-ellipsis whitespace-nowrap'>
+                {review.review}
+              </p>
+            </CardContent>
             <CardFooter className='flex gap-x-6 justify-start'>
               <ThumbsCounter
                 reviewId={review.id}

@@ -31,13 +31,19 @@ export const ReviewCard = async ({
     <Card>
       <CardHeader>
         <Link href={`/movies/${review.movieId}/reviews/${review.id}`}>
-          <CardTitle className='text-lg'>{review.title}</CardTitle>
+          <CardTitle className='text-lg overflow-hidden text-ellipsis whitespace-nowrap'>
+            {review.title}
+          </CardTitle>
         </Link>
         <CardDescription>
           {review.owner.split('@')[0]} on {formatDate(review.createdAt)}
         </CardDescription>
       </CardHeader>
-      <CardContent>{review.review}</CardContent>
+      <CardContent>
+        <p className='overflow-hidden text-ellipsis whitespace-nowrap'>
+          {review.review}
+        </p>
+      </CardContent>
       <CardFooter className='flex gap-x-6 justify-start'>
         <ThumbsCounter
           reviewId={review.id}
