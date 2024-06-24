@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db, schema } from 'root/db/db';
+import { getRatingsCountQuery } from './ratings';
 
 export type Review = NonNullable<
   Awaited<ReturnType<typeof getReviewsByMovieId>>
@@ -24,19 +25,7 @@ export const insertReview = (
 const buildReviewWithRatingsQuery = () => {
   const reactions = alias(schema.reviews, 'reactions');
 
-  const ratings = db
-    .select({
-      reviewId: schema.ratings.reviewId,
-      positive: sum(
-        sql`case when ${schema.ratings.outcome} = 'positive' then 1 else 0 end`
-      ).as('positive'),
-      negative: sum(
-        sql`case when ${schema.ratings.outcome} = 'negative' then 1 else 0 end`
-      ).as('negative'),
-    })
-    .from(schema.ratings)
-    .groupBy(schema.ratings.reviewId)
-    .as('ratings');
+  const ratings = getRatingsCountQuery().as('ratings');
 
   return db
     .select({

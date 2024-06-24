@@ -1,8 +1,6 @@
-'use server';
-
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema } from 'root/db/db';
-import { getUser } from 'src/app/lib/auth';
+import type { User } from 'src/app/lib/auth';
 
 export type Rating = NonNullable<
   Awaited<ReturnType<typeof getRatingsByReviewId>>
@@ -18,6 +16,28 @@ export const getRatingsByReviewId = (reviewId: number) => {
     limit: 50,
     orderBy: schema.ratings.createdAt,
   });
+};
+
+export const getRatingsCountQuery = () =>
+  db
+    .select({
+      reviewId: schema.ratings.reviewId,
+      positive:
+        sql`coalesce(sum(case when ${schema.ratings.outcome} = 'positive' then 1 else 0 end), 0)`
+          .mapWith(Number)
+          .as('positive'),
+      negative:
+        sql`coalesce(sum(case when ${schema.ratings.outcome} = 'negative' then 1 else 0 end), 0)`
+          .mapWith(Number)
+          .as('negative'),
+    })
+    .from(schema.ratings)
+    .groupBy(schema.ratings.reviewId);
+
+export const getRatingsCountByReviewId = (reviewId: number) => {
+  return getRatingsCountQuery()
+    .where(eq(schema.ratings.reviewId, reviewId))
+    .limit(1);
 };
 
 export const getRating = ({
@@ -36,19 +56,19 @@ export const getRating = ({
 };
 
 interface ToggleRatingParams {
+  user: User;
   reviewId: number;
   outcome: Rating['outcome'];
 }
 
 export const toggleRating = async ({
+  user,
   reviewId,
   outcome,
 }: ToggleRatingParams) => {
-  const viewer = await getUser();
-
   const whereClause = and(
     eq(schema.ratings.reviewId, reviewId),
-    eq(schema.ratings.owner, viewer.email)
+    eq(schema.ratings.owner, user.email)
   );
 
   const existingRating = await db.query.ratings.findFirst({
@@ -60,14 +80,15 @@ export const toggleRating = async ({
       .insert(schema.ratings)
       .values({
         reviewId,
-        owner: viewer.email,
+        owner: user.email,
         outcome,
       })
       .returning();
   }
 
   if (existingRating && outcome === existingRating.outcome) {
-    return db.delete(schema.ratings).where(whereClause);
+    await db.delete(schema.ratings).where(whereClause);
+    return;
   }
 
   return db

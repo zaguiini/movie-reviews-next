@@ -1,4 +1,4 @@
-import { getRatingsByReviewId } from '../../../db/ratings';
+import { getRatingsByReviewId } from 'src/app/db/ratings';
 
 export const GET = async (
   _: Request,

@@ -1,6 +1,6 @@
 import { getSession } from '@auth0/nextjs-auth0';
 
-type User = {
+export type User = {
   name: string;
   email: string;
   picture: string;

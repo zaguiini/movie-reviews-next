@@ -4,8 +4,9 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import { Tooltip } from 'src/components/ui/Tooltip';
 import { Button } from 'src/components/ui/Button';
 import useSWR from 'swr';
-import { Rating, toggleRating } from 'src/app/db/ratings';
-import { useState } from 'react';
+import { Rating } from 'src/app/db/ratings';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { toggleRating } from './actions/toggle-rating';
 
 interface ThumbsCounterProps {
   reviewId: number;
@@ -16,14 +17,44 @@ interface ThumbsCounterProps {
 
 export const ThumbsCounter = ({
   reviewId,
-  ratings,
+  ratings: serverRatings,
   isReadOnly,
   myRating,
 }: ThumbsCounterProps) => {
   const [shouldFetchData, enableDataFetching] = useState(false);
+  const [ratings, setRatings] = useState(serverRatings);
+
+  const ratingsRef = useRef(ratings);
+  ratingsRef.current = ratings;
+
+  useLayoutEffect(() => {
+    if (ratingsRef.current !== serverRatings) {
+      setRatings(serverRatings);
+    }
+  }, [serverRatings]);
+
+  useEffect(() => {
+    const eventSource = new EventSource(`/api/ratings/${reviewId}/count`);
+
+    eventSource.onmessage = (e) => {
+      const { positive, negative } = JSON.parse(e.data);
+
+      setRatings({ positive, negative });
+    };
+
+    eventSource.onerror = (e) => {
+      console.log('Error', e);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [reviewId]);
+
   const hasRatings = ratings.positive > 0 || ratings.negative > 0;
-  const { data, mutate } = useSWR<Rating[]>(
-    shouldFetchData && hasRatings ? `/api/ratings/${reviewId}` : null
+  const { data: ratingsList, mutate } = useSWR<Rating[]>(
+    shouldFetchData && hasRatings ? `/api/ratings/${reviewId}/list` : null
   );
 
   const ThumbsElement = isReadOnly ? 'div' : Button;
@@ -67,7 +98,7 @@ export const ThumbsCounter = ({
         <Tooltip
           trigger={thumbsUpButton}
           content={
-            data
+            ratingsList
               ?.filter(({ outcome }) => outcome === 'positive')
               .map(({ owner }) => owner)
               .join(', ') ?? 'Loading...'
@@ -80,7 +111,7 @@ export const ThumbsCounter = ({
         <Tooltip
           trigger={thumbsDownButton}
           content={
-            data
+            ratingsList
               ?.filter(({ outcome }) => outcome === 'negative')
               .map(({ owner }) => owner)
               .join(', ') ?? 'Loading...'
