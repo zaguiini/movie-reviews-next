@@ -1,6 +1,7 @@
 import { getRatingsCountByReviewId } from 'src/app/db/ratings';
 
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   _: Request,
