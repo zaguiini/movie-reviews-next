@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import NewReactionEmail from './template';
 import { getReviewById } from '../../db/reviews';
 import { NonRetriableError } from 'inngest';
+import { getBaseUrl } from 'src/lib/get-base-url';
 
 const getExcerpt = (review: string) => {
   if (review.length < 150) {
@@ -43,10 +44,7 @@ export const sendNewReactionEmail = inngest.createFunction(
     await step.run('send-email', async () => {
       const resend = new Resend(process.env.RESEND_API_KEY);
 
-      const host =
-        process.env.NODE_ENV === 'development'
-          ? 'https://localhost:3000'
-          : 'https://moviereviews.com';
+      const host = getBaseUrl();
 
       const { data, error } = await resend.emails.send({
         from: `Movies Review Next <movies.review.next@luisfelipezaguini.com>`,
