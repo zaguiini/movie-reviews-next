@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 import {
   getReviewsCountByDate,
   getReactionsCountByDate,
-} from '../../db/reviews';
+} from 'src/app/db/reviews';
 
 export const sendDailySummaryEmail = inngest.createFunction(
   { id: 'send-daily-summary-email' },
@@ -12,6 +12,7 @@ export const sendDailySummaryEmail = inngest.createFunction(
   async ({ event, step }) => {
     await step.run('send-email', async () => {
       const date = new Date();
+      date.setDate(date.getDate() - 1);
 
       const [numberOfReviews, numberOfReactions] = await Promise.all([
         getReviewsCountByDate({ date }),
