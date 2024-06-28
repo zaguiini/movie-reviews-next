@@ -6,11 +6,9 @@ import {
   isNotNull,
   isNull,
   sql,
-  sum,
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db, schema } from 'root/db/db';
-import { getRatingsCountQuery } from './ratings';
 
 export type Review = NonNullable<
   Awaited<ReturnType<typeof getReviewsByMovieId>>
@@ -25,8 +23,6 @@ export const insertReview = (
 const buildReviewWithRatingsQuery = () => {
   const reactions = alias(schema.reviews, 'reactions');
 
-  const ratings = getRatingsCountQuery().as('ratings');
-
   return db
     .select({
       id: schema.reviews.id,
@@ -36,8 +32,14 @@ const buildReviewWithRatingsQuery = () => {
       title: schema.reviews.title,
       review: schema.reviews.review,
       ratings: {
-        positive: sql`sum(coalesce(${ratings.positive}, 0))`.mapWith(Number),
-        negative: sql`sum(coalesce(${ratings.negative}, 0))`.mapWith(Number),
+        positive:
+          sql`(select count(*) from ratings where ${schema.ratings.reviewId} = ${schema.reviews.id} and ${schema.ratings.outcome} = 'positive')`.mapWith(
+            Number
+          ),
+        negative:
+          sql`(select count(*) from ratings where ${schema.ratings.reviewId} = ${schema.reviews.id} and ${schema.ratings.outcome} = 'negative')`.mapWith(
+            Number
+          ),
       },
       parentReviewId: schema.reviews.parentReviewId,
       reaction_ids: sql<
@@ -45,7 +47,6 @@ const buildReviewWithRatingsQuery = () => {
       >`array_remove(array_agg(${reactions.id} order by ${reactions.createdAt} desc), null)`,
     })
     .from(schema.reviews)
-    .leftJoin(ratings, eq(schema.reviews.id, ratings.reviewId))
     .leftJoin(reactions, eq(schema.reviews.id, reactions.parentReviewId))
     .groupBy(schema.reviews.id);
 };

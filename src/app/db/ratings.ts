@@ -18,8 +18,8 @@ export const getRatingsByReviewId = (reviewId: number) => {
   });
 };
 
-export const getRatingsCountQuery = () =>
-  db
+export const getRatingsCountByReviewId = (reviewId: number) => {
+  return db
     .select({
       reviewId: schema.ratings.reviewId,
       positive:
@@ -32,11 +32,8 @@ export const getRatingsCountQuery = () =>
           .as('negative'),
     })
     .from(schema.ratings)
-    .groupBy(schema.ratings.reviewId);
-
-export const getRatingsCountByReviewId = (reviewId: number) => {
-  return getRatingsCountQuery()
     .where(eq(schema.ratings.reviewId, reviewId))
+    .groupBy(schema.ratings.reviewId)
     .limit(1);
 };
 
