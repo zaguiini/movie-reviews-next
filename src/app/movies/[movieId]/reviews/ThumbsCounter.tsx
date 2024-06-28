@@ -3,9 +3,10 @@
 import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import { Tooltip } from 'src/components/ui/Tooltip';
 import { Button } from 'src/components/ui/Button';
+import Pusher from 'pusher-js';
 import useSWR from 'swr';
 import { Rating } from 'src/app/db/ratings';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toggleRating } from './actions/toggle-rating';
 
 interface ThumbsCounterProps {
@@ -24,31 +25,23 @@ export const ThumbsCounter = ({
   const [shouldFetchData, enableDataFetching] = useState(false);
   const [ratings, setRatings] = useState(serverRatings);
 
-  const ratingsRef = useRef(ratings);
-  ratingsRef.current = ratings;
-
-  useLayoutEffect(() => {
-    if (ratingsRef.current !== serverRatings) {
-      setRatings(serverRatings);
-    }
-  }, [serverRatings]);
-
   useEffect(() => {
-    const eventSource = new EventSource(`/api/ratings/${reviewId}/count`);
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER!,
+    });
 
-    eventSource.onmessage = (e) => {
-      const { positive, negative } = JSON.parse(e.data);
+    const channel = pusher.subscribe('rating-updates');
 
-      setRatings({ positive, negative });
-    };
-
-    eventSource.onerror = (e) => {
-      console.log('Error', e);
-      eventSource.close();
-    };
+    channel.bind(reviewId.toString(), (data: typeof ratings) => {
+      setRatings({
+        positive: data.positive,
+        negative: data.negative,
+      });
+    });
 
     return () => {
-      eventSource.close();
+      channel.unbind(reviewId.toString());
+      channel.unsubscribe();
     };
   }, [reviewId]);
 
