@@ -10,7 +10,7 @@ export const getReactionsByReviewId = (parentReviewId: number) => {
         where: and(eq(schema.reviews.parentReviewId, _parentReviewId)),
       }),
     ['reactions', parentReviewId.toString()],
-    { revalidate: false, tags: [`reactions:reviewId=${parentReviewId}`] }
+    { revalidate: false, tags: [`reactions:${parentReviewId}`] }
   )(parentReviewId);
 };
 
@@ -25,7 +25,7 @@ export const getReactionsCountByReviewId = (reviewId: number) => {
       return result.count;
     },
     ['reactionsCount', reviewId.toString()],
-    { revalidate: false, tags: [`reactions:reviewId=${reviewId}`] }
+    { revalidate: false, tags: [`reactions:${reviewId}`] }
   )(reviewId);
 };
 
