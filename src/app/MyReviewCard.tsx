@@ -1,5 +1,4 @@
-import { Review } from './db/reviews';
-import { Movie } from './lib/movies-service';
+import { getMovieById } from './lib/movies-service';
 import {
   Card,
   CardAside,
@@ -12,14 +11,20 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThumbsCounter } from './movies/[movieId]/reviews/ThumbsCounter';
+import { getReactionsByReviewId, getReviewsByOwner } from './db/reviews';
+import { getRatingsCountByReviewId } from './db/ratings';
 
-export function MyReviewCard({
-  movie,
+export async function MyReviewCard({
   review,
 }: {
-  movie: Movie;
-  review: Review;
+  review: NonNullable<Awaited<ReturnType<typeof getReviewsByOwner>>>[number];
 }) {
+  const [movie, ratings, reactions] = await Promise.all([
+    getMovieById(review.movieId),
+    getRatingsCountByReviewId(review.id),
+    getReactionsByReviewId(review.id),
+  ]);
+
   return (
     <Link href={`/movies/${movie.id}/reviews/${review.id}`}>
       <Card>
@@ -52,14 +57,12 @@ export function MyReviewCard({
             <CardFooter className='flex gap-x-6 justify-start'>
               <ThumbsCounter
                 reviewId={review.id}
-                ratings={review.ratings}
+                ratings={ratings}
                 isReadOnly
               />
-              {review.reaction_ids.length > 0 && (
+              {reactions.length > 0 && (
                 <span className='underline hover:no-underline'>
-                  {review.reaction_ids.length === 1
-                    ? 'Read reaction'
-                    : 'Read reactions'}
+                  {reactions.length === 1 ? 'Read reaction' : 'Read reactions'}
                 </span>
               )}
             </CardFooter>

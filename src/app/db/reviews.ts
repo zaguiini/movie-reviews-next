@@ -8,6 +8,7 @@ import {
   sql,
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
+import { unstable_cache } from 'next/cache';
 import { db, schema } from 'root/db/db';
 
 export type Review = NonNullable<
@@ -61,9 +62,28 @@ export const getReviewsByMovieId = (movieId: number) => {
 };
 
 export const getReviewsByOwner = (owner: string) => {
-  return buildReviewWithRatingsQuery().where(
-    and(isNull(schema.reviews.parentReviewId), eq(schema.reviews.owner, owner))
-  );
+  return unstable_cache(
+    (_owner: string) =>
+      db.query.reviews.findMany({
+        where: and(
+          isNull(schema.reviews.parentReviewId),
+          eq(schema.reviews.owner, _owner)
+        ),
+      }),
+    ['reviews', owner],
+    { revalidate: false, tags: [`reviews:${owner}`] }
+  )(owner);
+};
+
+export const getReactionsByReviewId = (reviewId: number) => {
+  return unstable_cache(
+    (_reviewId: number) =>
+      db.query.reviews.findMany({
+        where: and(eq(schema.reviews.parentReviewId, _reviewId)),
+      }),
+    [`reactions`, reviewId.toString()],
+    { revalidate: false, tags: [`reactions:${reviewId}`] }
+  )(reviewId);
 };
 
 export const getReviewById = async (reviewId: number) => {

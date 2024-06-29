@@ -1,4 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 import { db, schema } from 'root/db/db';
 import type { User } from 'src/app/lib/auth';
 
@@ -7,34 +8,53 @@ export type Rating = NonNullable<
 >[number];
 
 export const getRatingsByReviewId = (reviewId: number) => {
-  return db.query.ratings.findMany({
-    where: eq(schema.ratings.reviewId, reviewId),
-    columns: {
-      owner: true,
-      outcome: true,
-    },
-    limit: 50,
-    orderBy: schema.ratings.createdAt,
-  });
+  return unstable_cache(
+    (_reviewId: number) =>
+      db.query.ratings.findMany({
+        where: eq(schema.ratings.reviewId, _reviewId),
+        columns: {
+          owner: true,
+          outcome: true,
+        },
+        limit: 50,
+        orderBy: schema.ratings.createdAt,
+      }),
+    ['ratingsList', reviewId.toString()],
+    { revalidate: false, tags: [`ratings:${reviewId}`] }
+  )(reviewId);
 };
 
 export const getRatingsCountByReviewId = (reviewId: number) => {
-  return db
-    .select({
-      reviewId: schema.ratings.reviewId,
-      positive:
-        sql`coalesce(sum(case when ${schema.ratings.outcome} = 'positive' then 1 else 0 end), 0)`
-          .mapWith(Number)
-          .as('positive'),
-      negative:
-        sql`coalesce(sum(case when ${schema.ratings.outcome} = 'negative' then 1 else 0 end), 0)`
-          .mapWith(Number)
-          .as('negative'),
-    })
-    .from(schema.ratings)
-    .where(eq(schema.ratings.reviewId, reviewId))
-    .groupBy(schema.ratings.reviewId)
-    .limit(1);
+  return unstable_cache(
+    async (_reviewId: number) => {
+      const [result] = await db
+        .select({
+          reviewId: schema.ratings.reviewId,
+          positive:
+            sql`coalesce(sum(case when ${schema.ratings.outcome} = 'positive' then 1 else 0 end), 0)`
+              .mapWith(Number)
+              .as('positive'),
+          negative:
+            sql`coalesce(sum(case when ${schema.ratings.outcome} = 'negative' then 1 else 0 end), 0)`
+              .mapWith(Number)
+              .as('negative'),
+        })
+        .from(schema.ratings)
+        .where(eq(schema.ratings.reviewId, _reviewId))
+        .groupBy(schema.ratings.reviewId)
+        .limit(1);
+
+      return {
+        positive: result?.positive ?? 0,
+        negative: result?.negative ?? 0,
+      };
+    },
+    ['ratingsCount', reviewId.toString()],
+    {
+      revalidate: false,
+      tags: [`ratings:${reviewId}`],
+    }
+  )(reviewId);
 };
 
 export const getRating = ({
