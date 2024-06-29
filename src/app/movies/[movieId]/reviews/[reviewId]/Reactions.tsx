@@ -1,21 +1,32 @@
-import { Suspense } from 'react';
-import { Review, getReaction, getReviewById } from 'src/app/db/reviews';
-import { getPotentialUser } from 'src/app/lib/auth';
+import { Review, getReviewById } from 'src/app/db/reviews';
+import {
+  getReaction,
+  getReactionsByReviewId,
+  getReactionsCountByReviewId,
+} from 'src/app/db/reactions';
+import { User, getPotentialUser } from 'src/app/lib/auth';
 import { ReviewCard } from '../ReviewCard';
 import { LoginURL } from '../../LoginURL';
 import { WriteReviewForm } from '../../WriteReviewForm';
+import { Suspense } from 'react';
 
-const ReactionCard = async ({ reviewId }: { reviewId: number }) => {
-  const viewer = await getPotentialUser();
-  const review = await getReviewById(reviewId);
+const ReactionsList = async ({
+  reviewId,
+  viewer,
+}: {
+  reviewId: number;
+  viewer?: User;
+}) => {
+  const reactions = await getReactionsByReviewId(reviewId);
 
-  return (
+  return reactions.map((reaction) => (
     <ReviewCard
-      areThumbsReadOnly={!viewer || review.owner === viewer.email}
-      review={review}
+      key={reaction.id}
+      areThumbsReadOnly={!viewer || reaction.owner === viewer.email}
+      review={reaction}
       hideReactionLink
     />
-  );
+  ));
 };
 
 type ReactionsProps = {
@@ -24,16 +35,22 @@ type ReactionsProps = {
 };
 
 export const Reactions = async ({ review, viewer }: ReactionsProps) => {
+  const reactions = await getReactionsCountByReviewId(review.id);
+
   if (review.parentReviewId !== null) {
-    const parentReview = await getReviewById(review.parentReviewId!);
+    const parentReview = await getReviewById(review.parentReviewId);
 
     return (
       <div className='mt-6'>
         <h3 className='text-2xl font-bold mb-4'>In response to review</h3>
-        <ReviewCard
-          areThumbsReadOnly={viewer?.email === parentReview.owner}
-          review={parentReview}
-        />
+        {parentReview ? (
+          <ReviewCard
+            areThumbsReadOnly={!viewer || viewer.email === parentReview.owner}
+            review={parentReview}
+          />
+        ) : (
+          <p>Failed to fetch review {review.parentReviewId}</p>
+        )}
       </div>
     );
   }
@@ -42,18 +59,16 @@ export const Reactions = async ({ review, viewer }: ReactionsProps) => {
     return (
       <div className='mt-6'>
         <h3 className='text-2xl font-bold mb-4'>Reactions</h3>
-        {review.reaction_ids.length === 0 ? (
+        {reactions === 0 ? (
           <div>
             No reactions. <LoginURL>Login to react</LoginURL>
           </div>
         ) : (
           <div className='mt-4 flex flex-col gap-4'>
             <LoginURL>Login to react</LoginURL>
-            {review.reaction_ids.map((reaction) => (
-              <Suspense key={reaction}>
-                <ReactionCard reviewId={reaction} />
-              </Suspense>
-            ))}
+            <Suspense fallback='Loading reactions...'>
+              <ReactionsList reviewId={review.id} />
+            </Suspense>
           </div>
         )}
       </div>
@@ -77,15 +92,13 @@ export const Reactions = async ({ review, viewer }: ReactionsProps) => {
         </div>
       ) : null}
       <h3 className='text-2xl font-bold mb-4'>Reactions</h3>
-      {review.reaction_ids.length === 0 ? (
+      {reactions === 0 ? (
         <div>No reactions.</div>
       ) : (
         <div className='mt-4 flex flex-col gap-4'>
-          {review.reaction_ids.map((reaction) => (
-            <Suspense key={reaction}>
-              <ReactionCard reviewId={reaction} />
-            </Suspense>
-          ))}
+          <Suspense fallback='Loading reactions...'>
+            <ReactionsList reviewId={review.id} viewer={viewer} />
+          </Suspense>
         </div>
       )}
     </div>

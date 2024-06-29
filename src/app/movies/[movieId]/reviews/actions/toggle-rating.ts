@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidateTag } from 'next/cache';
 import Pusher from 'pusher';
 import {
   toggleRating as dbToggleRating,
@@ -15,12 +16,9 @@ export const toggleRating = async ({
 
   await dbToggleRating({ user, outcome, reviewId });
 
-  const [result] = await getRatingsCountByReviewId(reviewId);
+  revalidateTag(`ratings:${reviewId}`);
 
-  const ratings = {
-    positive: result?.positive ?? 0,
-    negative: result?.negative ?? 0,
-  };
+  const ratings = await getRatingsCountByReviewId(reviewId);
 
   const pusher = new Pusher({
     appId: process.env.PUSHER_APP_ID!,

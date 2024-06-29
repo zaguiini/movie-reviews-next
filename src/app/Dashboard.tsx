@@ -1,7 +1,6 @@
 import { MoviesSearch } from './MoviesSearch';
 import { getUser } from './lib/auth';
 import { getReviewsByOwner } from './db/reviews';
-import { getMovieById } from './lib/movies-service';
 import { MyReviewCard } from './MyReviewCard';
 import { getTranslations } from 'next-intl/server';
 
@@ -10,9 +9,6 @@ export async function Dashboard({ query = '' }) {
   const user = await getUser();
 
   const reviews = await getReviewsByOwner(user.email);
-  const moviesForReviews = await Promise.all(
-    reviews.map((review) => getMovieById(review.movieId))
-  );
 
   return (
     <div className='flex flex-col gap-10'>
@@ -26,10 +22,7 @@ export async function Dashboard({ query = '' }) {
             <ul className='grid grid-cols-2 gap-2'>
               {reviews.map((review, index) => (
                 <li key={review.id}>
-                  <MyReviewCard
-                    movie={moviesForReviews[index]}
-                    review={review}
-                  />
+                  <MyReviewCard review={review} />
                 </li>
               ))}
             </ul>

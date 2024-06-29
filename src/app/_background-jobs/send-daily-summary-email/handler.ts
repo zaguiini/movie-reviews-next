@@ -1,10 +1,8 @@
 import { inngest } from 'src/ingest/client';
 import DailySummaryEmail from './template';
 import { Resend } from 'resend';
-import {
-  getReviewsCountByDate,
-  getReactionsCountByDate,
-} from 'src/app/db/reviews';
+import { getReviewsCountByDate } from 'src/app/db/reviews';
+import { getReactionsCountByDate } from 'src/app/db/reactions';
 
 export const sendDailySummaryEmail = inngest.createFunction(
   { id: 'send-daily-summary-email' },

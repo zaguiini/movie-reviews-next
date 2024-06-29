@@ -4,6 +4,7 @@ import { getUser } from 'src/app/lib/auth';
 import { ReviewFormData, reviewForm } from './validation';
 import { insertReview } from 'src/app/db/reviews';
 import { inngest } from 'src/ingest/client';
+import { revalidateTag } from 'next/cache';
 
 export async function addReview(formData: ReviewFormData) {
   const data = reviewForm.parse(formData);
@@ -16,6 +17,13 @@ export async function addReview(formData: ReviewFormData) {
     review: data.review,
     parentReviewId: data.parentReviewId,
   });
+
+  if (data.parentReviewId != null) {
+    revalidateTag(`reactions:${data.parentReviewId}`);
+  } else {
+    revalidateTag(`reviews:owner=${user.email}`);
+    revalidateTag(`reviews:movieId=${data.movieId}`);
+  }
 
   if (data.parentReviewId) {
     await inngest.send({
