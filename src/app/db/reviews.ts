@@ -55,7 +55,7 @@ export const getReviewById = async (reviewId: number) => {
         where: eq(schema.reviews.id, _reviewId),
       }),
     ['review', reviewId.toString()],
-    { revalidate: false, tags: [`review:id=${reviewId}`] }
+    { revalidate: false, tags: [`review:${reviewId}`] }
   )(reviewId);
 };
 
