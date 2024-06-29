@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CardDescription, CardTitle } from 'src/components/ui/Card';
-import { getReactionsCountByReviewId, getReviewById } from 'src/app/db/reviews';
+import { getReviewById } from 'src/app/db/reviews';
+import { getReactionsCountByReviewId } from 'src/app/db/reactions';
 import { ThumbsCounter } from '../ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
 import { getRating, getRatingsCountByReviewId } from 'src/app/db/ratings';
@@ -30,15 +31,15 @@ export default async function ReviewDetail({
     );
   }
 
-  const [viewer, ratings, reactions] = await Promise.all([
-    getPotentialUser(),
+  const viewer = await getPotentialUser();
+
+  const [ratings, reactions, myRating] = await Promise.all([
     getRatingsCountByReviewId(reviewId),
     getReactionsCountByReviewId(reviewId),
+    viewer
+      ? getRating({ reviewId: review.id, owner: viewer.email })
+      : undefined,
   ]);
-
-  const myRating = viewer
-    ? await getRating({ reviewId: review.id, owner: viewer.email })
-    : undefined;
 
   return (
     <div>

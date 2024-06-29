@@ -71,7 +71,7 @@ export const getRating = ({ reviewId, owner }: GetRatingParams) => {
           eq(schema.ratings.owner, _params.owner)
         ),
       }),
-    ['ratings', `${reviewId}-${owner}`],
+    ['ratingsByOwner', reviewId.toString(), owner],
     { revalidate: false, tags: [`ratings:${reviewId}`] }
   )({ reviewId, owner });
 };

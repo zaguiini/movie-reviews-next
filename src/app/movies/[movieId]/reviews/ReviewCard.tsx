@@ -1,4 +1,5 @@
-import { Review, getReactionsCountByReviewId } from 'src/app/db/reviews';
+import { Review } from 'src/app/db/reviews';
+import { getReactionsCountByReviewId } from 'src/app/db/reactions';
 import {
   Card,
   CardContent,

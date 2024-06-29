@@ -8,6 +8,7 @@ import {
 } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { db, schema } from 'root/db/db';
+import { getDate } from 'src/lib/get-date';
 
 export type Review = NonNullable<
   Awaited<ReturnType<typeof getReviewsByMovieId>>
@@ -28,7 +29,7 @@ export const getReviewsByMovieId = (movieId: number) => {
           eq(schema.reviews.movieId, _movieId)
         ),
       }),
-    ['reviews', 'movieId', movieId.toString()],
+    ['reviewsByMovieId', movieId.toString()],
     { revalidate: false, tags: [`reviews:movieId=${movieId}`] }
   )(movieId);
 };
@@ -42,35 +43,9 @@ export const getReviewsByOwner = (owner: string) => {
           eq(schema.reviews.owner, _owner)
         ),
       }),
-    ['reviews', 'owner', owner],
+    ['reviewsByOwner', owner],
     { revalidate: false, tags: [`reviews:owner=${owner}`] }
   )(owner);
-};
-
-export const getReactionsByReviewId = (reviewId: number) => {
-  return unstable_cache(
-    (_reviewId: number) =>
-      db.query.reviews.findMany({
-        where: and(eq(schema.reviews.parentReviewId, _reviewId)),
-      }),
-    [`reactions`, reviewId.toString()],
-    { revalidate: false, tags: [`reactions:reviewId=${reviewId}`] }
-  )(reviewId);
-};
-
-export const getReactionsCountByReviewId = (reviewId: number) => {
-  return unstable_cache(
-    async (_reviewId: number) => {
-      const [result] = await db
-        .select({ count: count() })
-        .from(schema.reviews)
-        .where(eq(schema.reviews.parentReviewId, _reviewId));
-
-      return result.count;
-    },
-    [`reactionsCount`, reviewId.toString()],
-    { revalidate: false, tags: [`reactions:reviewId=${reviewId}`] }
-  )(reviewId);
 };
 
 export const getReviewById = async (reviewId: number) => {
@@ -84,30 +59,6 @@ export const getReviewById = async (reviewId: number) => {
   )(reviewId);
 };
 
-interface Params {
-  owner: string;
-  parentReviewId: number;
-}
-
-export const getReaction = async ({ owner, parentReviewId }: Params) => {
-  return unstable_cache(
-    (_params: Params) =>
-      db.query.reviews.findFirst({
-        where: and(
-          eq(schema.reviews.owner, _params.owner),
-          eq(schema.reviews.parentReviewId, _params.parentReviewId)
-        ),
-      }),
-    ['reaction', 'owner', owner, 'parentReview', parentReviewId.toString()],
-    {
-      revalidate: false,
-      tags: [`reactions:owner=${owner},reviewId=${parentReviewId}`],
-    }
-  )({ owner, parentReviewId });
-};
-
-const getDate = (date: Date) => date.toISOString().split('T')[0];
-
 export const getReviewsCountByDate = async ({ date }: { date: Date }) => {
   const [result] = await db
     .select({ count: count() })
@@ -116,20 +67,6 @@ export const getReviewsCountByDate = async ({ date }: { date: Date }) => {
       and(
         eq(schema.reviews.createdAt, getDate(date)),
         isNull(schema.reviews.parentReviewId)
-      )
-    );
-
-  return result?.count ?? 0;
-};
-
-export const getReactionsCountByDate = async ({ date }: { date: Date }) => {
-  const [result] = await db
-    .select({ count: count() })
-    .from(schema.reviews)
-    .where(
-      and(
-        eq(schema.reviews.createdAt, getDate(date)),
-        isNotNull(schema.reviews.parentReviewId)
       )
     );
 

@@ -11,8 +11,9 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThumbsCounter } from './movies/[movieId]/reviews/ThumbsCounter';
-import { getReactionsCountByReviewId, getReviewsByOwner } from './db/reviews';
+import { getReviewsByOwner } from './db/reviews';
 import { getRatingsCountByReviewId } from './db/ratings';
+import { getReactionsCountByReviewId } from './db/reactions';
 
 export async function MyReviewCard({
   review,

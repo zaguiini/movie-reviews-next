@@ -1,10 +1,9 @@
+import { Review, getReviewById } from 'src/app/db/reviews';
 import {
-  Review,
   getReaction,
   getReactionsByReviewId,
   getReactionsCountByReviewId,
-  getReviewById,
-} from 'src/app/db/reviews';
+} from 'src/app/db/reactions';
 import { User, getPotentialUser } from 'src/app/lib/auth';
 import { ReviewCard } from '../ReviewCard';
 import { LoginURL } from '../../LoginURL';

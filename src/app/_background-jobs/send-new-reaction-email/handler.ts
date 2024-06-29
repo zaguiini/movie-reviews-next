@@ -34,12 +34,20 @@ export const sendNewReactionEmail = inngest.createFunction(
   async ({ event, step }) => {
     const reaction = await getReviewById(event.data.reactionId);
 
+    if (!reaction) {
+      throw new Error('Reaction not found');
+    }
+
     if (reaction.parentReviewId === null) {
       const cause = new ReactionHasNoParentError({ reviewId: reaction.id });
       throw new NonRetriableError('Review has no parent review ID', { cause });
     }
 
     const review = await getReviewById(reaction.parentReviewId);
+
+    if (!review) {
+      throw new Error('Reaction not found');
+    }
 
     await step.run('send-email', async () => {
       const resend = new Resend(process.env.RESEND_API_KEY);
