@@ -1,4 +1,4 @@
-import { Review, getReactionsByReviewId } from 'src/app/db/reviews';
+import { Review, getReactionsCountByReviewId } from 'src/app/db/reviews';
 import {
   Card,
   CardContent,
@@ -26,7 +26,7 @@ export const ReviewCard = async ({
   const [ratings, myRating, reactions] = await Promise.all([
     getRatingsCountByReviewId(review.id),
     user ? getRating({ reviewId: review.id, owner: user.email }) : undefined,
-    getReactionsByReviewId(review.id),
+    getReactionsCountByReviewId(review.id),
   ]);
 
   return (
@@ -59,9 +59,9 @@ export const ReviewCard = async ({
               href={`/movies/${review.movieId}/reviews/${review.id}`}
               className='underline hover:no-underline'
             >
-              {reactions.length === 0
+              {reactions === 0
                 ? 'See reactions'
-                : reactions.length === 1
+                : reactions === 1
                   ? 'Read reaction'
                   : 'Read reactions'}
             </Link>

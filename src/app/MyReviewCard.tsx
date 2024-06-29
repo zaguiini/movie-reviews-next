@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThumbsCounter } from './movies/[movieId]/reviews/ThumbsCounter';
-import { getReactionsByReviewId, getReviewsByOwner } from './db/reviews';
+import { getReactionsCountByReviewId, getReviewsByOwner } from './db/reviews';
 import { getRatingsCountByReviewId } from './db/ratings';
 
 export async function MyReviewCard({
@@ -22,7 +22,7 @@ export async function MyReviewCard({
   const [movie, ratings, reactions] = await Promise.all([
     getMovieById(review.movieId),
     getRatingsCountByReviewId(review.id),
-    getReactionsByReviewId(review.id),
+    getReactionsCountByReviewId(review.id),
   ]);
 
   return (
@@ -60,9 +60,9 @@ export async function MyReviewCard({
                 ratings={ratings}
                 isReadOnly
               />
-              {reactions.length > 0 && (
+              {reactions > 0 && (
                 <span className='underline hover:no-underline'>
-                  {reactions.length === 1 ? 'Read reaction' : 'Read reactions'}
+                  {reactions === 1 ? 'Read reaction' : 'Read reactions'}
                 </span>
               )}
             </CardFooter>

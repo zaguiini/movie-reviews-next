@@ -5,9 +5,7 @@ import {
   eq,
   isNotNull,
   isNull,
-  sql,
 } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
 import { unstable_cache } from 'next/cache';
 import { db, schema } from 'root/db/db';
 
@@ -19,37 +17,6 @@ export const insertReview = (
   params: InferInsertModel<typeof schema.reviews>
 ) => {
   return db.insert(schema.reviews).values(params).returning();
-};
-
-const buildReviewWithRatingsQuery = () => {
-  const reactions = alias(schema.reviews, 'reactions');
-
-  return db
-    .select({
-      id: schema.reviews.id,
-      movieId: schema.reviews.movieId,
-      createdAt: schema.reviews.createdAt,
-      owner: schema.reviews.owner,
-      title: schema.reviews.title,
-      review: schema.reviews.review,
-      ratings: {
-        positive:
-          sql`(select count(*) from ratings where ${schema.ratings.reviewId} = ${schema.reviews.id} and ${schema.ratings.outcome} = 'positive')`.mapWith(
-            Number
-          ),
-        negative:
-          sql`(select count(*) from ratings where ${schema.ratings.reviewId} = ${schema.reviews.id} and ${schema.ratings.outcome} = 'negative')`.mapWith(
-            Number
-          ),
-      },
-      parentReviewId: schema.reviews.parentReviewId,
-      reaction_ids: sql<
-        number[]
-      >`array_remove(array_agg(${reactions.id} order by ${reactions.createdAt} desc), null)`,
-    })
-    .from(schema.reviews)
-    .leftJoin(reactions, eq(schema.reviews.id, reactions.parentReviewId))
-    .groupBy(schema.reviews.id);
 };
 
 export const getReviewsByMovieId = (movieId: number) => {
@@ -91,27 +58,52 @@ export const getReactionsByReviewId = (reviewId: number) => {
   )(reviewId);
 };
 
-export const getReviewById = async (reviewId: number) => {
-  const [result] = await buildReviewWithRatingsQuery()
-    .where(eq(schema.reviews.id, reviewId))
-    .limit(1);
+export const getReactionsCountByReviewId = (reviewId: number) => {
+  return unstable_cache(
+    async (_reviewId: number) => {
+      const [result] = await db
+        .select({ count: count() })
+        .from(schema.reviews)
+        .where(eq(schema.reviews.parentReviewId, _reviewId));
 
-  return result;
+      return result.count;
+    },
+    [`reactionsCount`, reviewId.toString()],
+    { revalidate: false, tags: [`reactions:reviewId=${reviewId}`] }
+  )(reviewId);
 };
 
-export const getReaction = async ({
-  owner,
-  parentReviewId,
-}: {
+export const getReviewById = async (reviewId: number) => {
+  return unstable_cache(
+    (_reviewId: number) =>
+      db.query.reviews.findFirst({
+        where: eq(schema.reviews.id, _reviewId),
+      }),
+    ['review', reviewId.toString()],
+    { revalidate: false, tags: [`review:id=${reviewId}`] }
+  )(reviewId);
+};
+
+interface Params {
   owner: string;
   parentReviewId: number;
-}) => {
-  return db.query.reviews.findFirst({
-    where: and(
-      eq(schema.reviews.owner, owner),
-      eq(schema.reviews.parentReviewId, parentReviewId)
-    ),
-  });
+}
+
+export const getReaction = async ({ owner, parentReviewId }: Params) => {
+  return unstable_cache(
+    (_params: Params) =>
+      db.query.reviews.findFirst({
+        where: and(
+          eq(schema.reviews.owner, _params.owner),
+          eq(schema.reviews.parentReviewId, _params.parentReviewId)
+        ),
+      }),
+    ['reaction', 'owner', owner, 'parentReview', parentReviewId.toString()],
+    {
+      revalidate: false,
+      tags: [`reactions:owner=${owner},reviewId=${parentReviewId}`],
+    }
+  )({ owner, parentReviewId });
 };
 
 const getDate = (date: Date) => date.toISOString().split('T')[0];
