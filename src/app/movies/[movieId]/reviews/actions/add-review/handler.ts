@@ -21,7 +21,8 @@ export async function addReview(formData: ReviewFormData) {
   if (data.parentReviewId != null) {
     revalidateTag(`reactions:${data.parentReviewId}`);
   } else {
-    revalidateTag(`reviews:${user.email}`);
+    revalidateTag(`reviews:owner=${user.email}`);
+    revalidateTag(`reviews:movieId=${data.movieId}`);
   }
 
   if (data.parentReviewId) {

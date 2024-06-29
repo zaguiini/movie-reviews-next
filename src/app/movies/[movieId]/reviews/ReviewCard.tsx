@@ -1,4 +1,4 @@
-import { Review } from 'src/app/db/reviews';
+import { Review, getReactionsByReviewId } from 'src/app/db/reviews';
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import {
 import Link from 'next/link';
 import { ThumbsCounter } from './ThumbsCounter';
 import { getPotentialUser } from 'src/app/lib/auth';
-import { getRating } from '../../../db/ratings';
+import { getRating, getRatingsCountByReviewId } from 'src/app/db/ratings';
 import { formatDate } from 'src/lib/format';
 
 export const ReviewCard = async ({
@@ -23,9 +23,11 @@ export const ReviewCard = async ({
   hideReactionLink?: boolean;
 }) => {
   const user = await getPotentialUser();
-  const myRating = user
-    ? await getRating({ reviewId: review.id, owner: user.email })
-    : undefined;
+  const [ratings, myRating, reactions] = await Promise.all([
+    getRatingsCountByReviewId(review.id),
+    user ? getRating({ reviewId: review.id, owner: user.email }) : undefined,
+    getReactionsByReviewId(review.id),
+  ]);
 
   return (
     <Card>
@@ -47,7 +49,7 @@ export const ReviewCard = async ({
       <CardFooter className='flex gap-x-6 justify-start'>
         <ThumbsCounter
           reviewId={review.id}
-          ratings={review.ratings}
+          ratings={ratings}
           isReadOnly={areThumbsReadOnly}
           myRating={myRating?.outcome}
         />
@@ -57,9 +59,9 @@ export const ReviewCard = async ({
               href={`/movies/${review.movieId}/reviews/${review.id}`}
               className='underline hover:no-underline'
             >
-              {review.reaction_ids.length === 0
+              {reactions.length === 0
                 ? 'See reactions'
-                : review.reaction_ids.length === 1
+                : reactions.length === 1
                   ? 'Read reaction'
                   : 'Read reactions'}
             </Link>

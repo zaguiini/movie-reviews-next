@@ -57,19 +57,23 @@ export const getRatingsCountByReviewId = (reviewId: number) => {
   )(reviewId);
 };
 
-export const getRating = ({
-  reviewId,
-  owner,
-}: {
+interface GetRatingParams {
   reviewId: number;
   owner: string;
-}) => {
-  return db.query.ratings.findFirst({
-    where: and(
-      eq(schema.ratings.reviewId, reviewId),
-      eq(schema.ratings.owner, owner)
-    ),
-  });
+}
+
+export const getRating = ({ reviewId, owner }: GetRatingParams) => {
+  return unstable_cache(
+    (_params: GetRatingParams) =>
+      db.query.ratings.findFirst({
+        where: and(
+          eq(schema.ratings.reviewId, _params.reviewId),
+          eq(schema.ratings.owner, _params.owner)
+        ),
+      }),
+    ['ratings', `${reviewId}-${owner}`],
+    { revalidate: false, tags: [`ratings:${reviewId}`] }
+  )({ reviewId, owner });
 };
 
 interface ToggleRatingParams {

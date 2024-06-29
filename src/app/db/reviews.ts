@@ -53,12 +53,17 @@ const buildReviewWithRatingsQuery = () => {
 };
 
 export const getReviewsByMovieId = (movieId: number) => {
-  return buildReviewWithRatingsQuery().where(
-    and(
-      isNull(schema.reviews.parentReviewId),
-      eq(schema.reviews.movieId, movieId)
-    )
-  );
+  return unstable_cache(
+    (_movieId: number) =>
+      db.query.reviews.findMany({
+        where: and(
+          isNull(schema.reviews.parentReviewId),
+          eq(schema.reviews.movieId, _movieId)
+        ),
+      }),
+    ['reviews', 'movieId', movieId.toString()],
+    { revalidate: false, tags: [`reviews:movieId=${movieId}`] }
+  )(movieId);
 };
 
 export const getReviewsByOwner = (owner: string) => {
@@ -70,8 +75,8 @@ export const getReviewsByOwner = (owner: string) => {
           eq(schema.reviews.owner, _owner)
         ),
       }),
-    ['reviews', owner],
-    { revalidate: false, tags: [`reviews:${owner}`] }
+    ['reviews', 'owner', owner],
+    { revalidate: false, tags: [`reviews:owner=${owner}`] }
   )(owner);
 };
 
@@ -82,7 +87,7 @@ export const getReactionsByReviewId = (reviewId: number) => {
         where: and(eq(schema.reviews.parentReviewId, _reviewId)),
       }),
     [`reactions`, reviewId.toString()],
-    { revalidate: false, tags: [`reactions:${reviewId}`] }
+    { revalidate: false, tags: [`reactions:reviewId=${reviewId}`] }
   )(reviewId);
 };
 
